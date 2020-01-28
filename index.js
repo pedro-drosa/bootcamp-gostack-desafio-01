@@ -4,6 +4,24 @@ server.use(express.json());
 
 const projects = [];
 
+//Verifica se um projeto existe
+function projectVerify(req, res, next)
+{
+    const {id} = req.params;
+    const project = projects.find(obj => obj.id == id);
+    if (! project) {
+        return res.status(400).json({error: "Project not found"});
+    }
+    return next();
+}
+
+//log Numero de requisições
+server.use((req, res, next) => 
+{
+    console.count("Number of requests");
+    return next();
+});
+
 //Cria um novo projeto
 server.post("/projects", (req, res) => 
 {
@@ -20,7 +38,7 @@ server.get("/projects", (req, res) =>
 });
 
 //Altera o titulo do projeto
-server.put("/projects/:id", (req, res) =>
+server.put("/projects/:id", projectVerify, (req, res) =>
 {
     const {id} = req.params;
     const {title} = req.body;
